@@ -26,3 +26,18 @@ STM32 projekt -> board selector -> nucleo-L4R5ZI
 
 
 - [ ] Přinést krabičku na Nucleo desku.
+- [ ] Rozchodit STM32CubeIDE na Linuxu.
+
+## Jak rozchodit STM32CubeIDE na Linuxu
+
+> [!warning] Chyba při nahraní do desky:
+> Could not determine GDB version using command: arm-none-eabi-gdb --version
+> arm-none-eabi-gdb: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory
+
+Cross-compilery pro ARM jsou v repozitářích, ale GDB je potřeba stáhnout z [https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
+
+## Jak udelat kopii projektu
+- parvým, kopírovat,
+- pravým, vložit,
+- změnit jméno souboru *.ioc !
+- projekt -> clean
