@@ -4,6 +4,7 @@
 ### User ###
 
 literatura/*
+*.zip
 
 ### Vim ###
 # Swap
