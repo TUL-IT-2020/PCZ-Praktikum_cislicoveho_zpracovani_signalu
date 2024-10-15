@@ -75,7 +75,53 @@ TimeStamp_SET_D();// 440
 ```
 
 ## DU
+
+### Měření času
 Změřit jak dlouho jsme zmáčkli modré tlačítko a odeslat do matlabu.
-Poznámky na USB.
+- Zobrazit v aplikaci.
+Poznámky na externím disku.
 - konfigurace DMA pro přenos po sériové lince.
 	- 4xByte
+
+## 4. týden: PMOD I2S2, konfigurace rozhraní SAI
+
+Zvýrazněno
+
+1) seznámení s modulem Pmod I2S2
+
+- parametry
+- schema zapojení a funkce
+- komunikační rozhraní (režim "slave")
+
+2) připojení modulu Pmod k desce Nucleo
+
+- volba konektorů a možnosti patice
+- napájení
+
+3) nastavení rozhraní SAI
+
+- konfigurace SAIA, SAIB
+- nastavení DMA
+- konfigurace časování
+- struktura dat: 24bitů na 32bitech signed int (drobný problém)
+    - dvojkový doplněk
+    - vysvětlit:
+```C
+if(0x00800000 & buf_SAI_RX[i2])
+
+tmp_sample = (0xFF000000 | buf_SAI_RX[i2]);
+
+else tmp_sample = (0x00FFFFFF & buf_SAI_RX[i2]);
+```
+
+4) konfigurace audio smyčky PC - ARM - PC
+
+- Axagon USB HQ audio mini adapter - vlastnosti ([axagon/ada-17](https://www.axagon.eu/produkty/ada-17))
+- vzorkovací frekvence max 48kHz
+- volba zesílení pro input/output
+- program v Matlabu
+
+1. Nejdřív udělat zpětnou vazbu na zvukovce. 
+2. Odladit přehrávání a záznam zvuku.
+> [!note] Linux
+> Pod Linuxem je potřeba nastavit správně vstupy a výstupy. Pomohlo nemít nastavený mikrofon, ale reproduktory na USB kartu. 

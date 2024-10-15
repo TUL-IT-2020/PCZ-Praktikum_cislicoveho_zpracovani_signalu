@@ -45,6 +45,11 @@ crw-rw-rw-+  1 root  dialout   166,     1 říj  1 10:26 ttyACM1
 ```
 
 
+### putty
+```bash
+sudo apt-get install putty
+```
+
 #### Zdroje:
 - https://wiki.st.com/stm32mpu/wiki/How_to_use_TTY_with_User_Terminal
 - BP projek David Salek
