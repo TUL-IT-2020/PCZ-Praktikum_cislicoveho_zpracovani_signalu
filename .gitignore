@@ -6,6 +6,7 @@
 literatura/*
 *.zip
 cv0*
+src/*.bin
 # arm knihovna
 *.pack 
 

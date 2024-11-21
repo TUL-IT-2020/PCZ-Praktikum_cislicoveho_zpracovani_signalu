@@ -32,47 +32,6 @@ STM32 projekt -> board selector -> nucleo-L4R5ZI
 ![[STM32CubeIDE]]
 
 ## Cvičení
+[CMSIS-DSP](https://arm-software.github.io/CMSIS_5/DSP/html/index.html)
 
-```C
-/* USER CODE BEGIN Includes */  
-#include "TimeStamp.h"  
-/* USER CODE END Includes */  
-  
-/* USER CODE BEGIN PV */  
-#define BLOCK_SIZE_MAX 4800  
-float sample_L[BLOCK_SIZE_MAX];  
-float sample_R[BLOCK_SIZE_MAX];  
-float sample_L1[BLOCK_SIZE_MAX];  
-float sample_R1[BLOCK_SIZE_MAX];  
-float sample_L2[BLOCK_SIZE_MAX];  
-float sample_R2[BLOCK_SIZE_MAX];  
-/* USER CODE END PV */  
-  
-/* USER CODE BEGIN 0 */  
-void XferCpltCallback(DMA_HandleTypeDef *hdma)  
-{  
-    //__NOP(); //Line reached only if transfer was successful. Toggle a breakpoint here  
-    TimeStamp_SET_F(); TimeStamp_SET_F();  
-}  
-/* USER CODE END 0 */  
-  
-/* USER CODE BEGIN 2 */  
-TimeStamp_INIT(&htim5); //HAL_TIM_Base_Start_IT(&htim5);// for time measure GetTime()  
-  
-// vlastni pokus    
-//DMA mem copy experiment  
-for(i=0; i<BLOCK_SIZE_MAX; i++)  
-    sample_L1[i]= i*i/159;  
-TimeStamp_SET_A();  
-for(i=0; i<BLOCK_SIZE_MAX; i++)  
-    sample_L2[i]= sample_L1[i];  
-TimeStamp_SET_B();// 182570 ticks  
-HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_channel1, HAL_DMA_XFER_CPLT_CB_ID, &XferCpltCallback);  
-TimeStamp_SET_C();// 29932 ticks  
-HAL_DMA_Start_IT(&hdma_memtomem_dma2_channel1, (uint32_t) sample_L1, (uint32_t) sample_R2, BLOCK_SIZE_MAX);  
-TimeStamp_SET_D();// 440  
-/* USER CODE END 2 */
-```
-
-## Úkoly
 ![[PCZ cvičení]]
