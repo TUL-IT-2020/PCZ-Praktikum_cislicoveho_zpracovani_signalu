@@ -89,8 +89,10 @@ else tmp_sample = (0x00FFFFFF & buf_SAI_RX[i2]);
 int32_t sign_extend_24_to_32bit(int32_t value) {
     int32_t sign_extended_value = 0;
     if(0x00800000 & value) {
+	    // neagtive
         sign_extended_value = (0xFF000000 | value);
     } else  {
+	    // positive
         sign_extended_value = (0x00FFFFFF & value);
     }
     return sign_extended_value;
@@ -101,7 +103,6 @@ int32_t sign_extend_24_to_32bit(int32_t value) {
 2. Odladit přehrávání a záznam zvuku.
 > [!note] Linux
 > Pod Linuxem je potřeba nastavit správně vstupy a výstupy. Pomohlo nemít nastavený mikrofon, ale reproduktory na USB kartu. 
-
 
 ## 5. týden
 Přidáváme knihovnu pro ARM.
@@ -303,7 +304,124 @@ Hammingovo okno, nebo jiná okénkovací funkce.
 - [ ] přehrání tónové volby na počítači v Matlabu
 - [ ] Matlab přijme zprávu s dekódováním tónové volby a zobrazí ji
 
-## 11. Týden 
+## 11. týden: realizace FFT, projekt SCRAMBLER, samostatná práce
+
+V rámci výuky jiného předmětu bude zaměněna stávající redukce za redukci "EXP KIT", kde je prohozeno `TR (B)` a `RE (A)` a A je master a B sync. slave na stejný SAI - nutno překonfigurovat.
+
+### SCRAMBLER
+
+Chceme otočit složení spektra, tak aby:
+- nízké frekvence byli  -> vysoké,
+- vysoké -> nízké 
+
+![[schema_scambler.png]]
+
+Docílíme toho tak že namodulujeme signál na nosnou frekvenci, které nebude daleko od našeho pozorovaného spektra. Spektrum v okolí nosné frekvence má převrácený charakter. Pokud bude nosná frekvence odpovídat nejvyšší složce našeho spektra 
+
+Postup:
+- Filtrace DP
+- Modulace na nosnou
+- Filtrace DP
+
+### Generování sinu
+
+``` Octave
+% apmlituda
+A = 2
+n = 100 % sec
+% frekvence
+f = 3100
+Fs = 48000
+
+% omega
+w0 = 2*pi*f*/Fs
+
+% nastaeveni koeficientu
+a1 = -2 * cos(w0)
+a2 = 1
+b0 = A .* sin(w0)
+
+% pocatecni hodnoty
+y0 = b0
+y(1) = -a1 * y0
+y(2) = -a1 * y(1) - a2*y0
+
+for n=3:n*Fs
+	y(n) = -a1 * y(n-1) - a2*y(n-2)
+end
+
+plot(y)
+```
+
+Implementace v C:
+```C
+void start_sin_generator(float A, float omega, float* a1, float* a2, float* y_prew, float* y_prew2) {
+	float y0 = A*arm_sin_f32(omega);
+	*a1 = -2 * cos(omega);
+	*a2 = 1;
+	*y_prew = -a1*y0;
+	*y_prew2 = -a1* (*y_prew) - a2 * y0;
+}
+
+float generate_next_sin_value(float A, float omega, float a1, float a2, float* y_prew, float* y_prew2){
+	float y_new = -a1* (*y_prew) -a2* (*y_prew2);
+	*y_prew2 = *y_prew;
+	*y_prew = y_new;
+	return y_new;
+}
+```
+Použití v C:
+```C
+A = 2;
+f1 = 3000;
+Fs = 48000;
+omega = 2*PI*f1/Fs;
+start_sin_generator(A, omega, &a1, &a2, &y_prew, &y_prew2);
+```
+
+S použitím struktury:
+```C
+#include <stdlib.h>
+
+typdef struct {
+	float amplitude;
+	float omega;
+	float a1;
+	float a2;
+	float y_prew[2];
+} sin_genarator_t;
+
+sin_genarator_t start_sin_generator(float A, float omega) {
+	sin_genarator_t* sin_gen = (sin_genarator_t*)malloc(sizeof(sin_genarator_t));
+	float y0 = A*sin(omega);
+	sin_gen->
+	sin_gen->omage = omega;
+	sin_gen->a1 = -2 * cos(omega);
+	sin_gen->a2 = 1;
+	sin_gen->y_prew[0] = -a1*y0;
+	sin_gen->y_prew[1] = -a1* (sin_gen->y_prew[0]) - a2 * y0;
+	return sin_gen;
+}
+
+float generate_next_sin_value(sin_genarator_t* sin_gen){
+	float y_new = - sin_gen->a1 * (sin_gen->y_prew[0]) - sin_gen->a2 * (sin_gen->y_prew[1]);
+	sin_gen->y_prew[1] = sin_gen->y_prew[0]
+	sin_gen->y_prew[0] = y_new;
+	return y_new;
+}
+```
+
+### TODO:
+- Nucleo:
+	- [ ] Přijímání zprávy,
+	- [ ] Nastavení filtru,
+	- [ ] Generování sinu,
+- Matlab:
+	- [ ] Odesílání zprávy,
+		- [ ] Dolnopropustní filtr,
+		- [ ] Frekvence nosné,
+	- [ ] generování signálu,
+	- [ ] Vizualizace
 
 ## Nápad
 Zavést logování zpráv na Nucleu.
