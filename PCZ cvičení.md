@@ -383,7 +383,7 @@ S použitím struktury:
 ```C
 #include <stdlib.h>
 
-typdef struct {
+typedef struct {
 	float amplitude;
 	float omega;
 	float a1;
@@ -391,21 +391,21 @@ typdef struct {
 	float y_prew[2];
 } sin_genarator_t;
 
-sin_genarator_t start_sin_generator(float A, float omega) {
+sin_genarator_t* start_sin_generator(float A, float omega) {
 	sin_genarator_t* sin_gen = (sin_genarator_t*)malloc(sizeof(sin_genarator_t));
 	float y0 = A*sin(omega);
-	sin_gen->
-	sin_gen->omage = omega;
+	sin_gen->amplitude = A;
+	sin_gen->omega = omega;
 	sin_gen->a1 = -2 * cos(omega);
 	sin_gen->a2 = 1;
-	sin_gen->y_prew[0] = -a1*y0;
-	sin_gen->y_prew[1] = -a1* (sin_gen->y_prew[0]) - a2 * y0;
+	sin_gen->y_prew[0] = -sin_gen->a1*y0;
+	sin_gen->y_prew[1] = -sin_gen->a1* (sin_gen->y_prew[0]) - sin_gen->a2 * y0;
 	return sin_gen;
 }
 
 float generate_next_sin_value(sin_genarator_t* sin_gen){
 	float y_new = - sin_gen->a1 * (sin_gen->y_prew[0]) - sin_gen->a2 * (sin_gen->y_prew[1]);
-	sin_gen->y_prew[1] = sin_gen->y_prew[0]
+	sin_gen->y_prew[1] = sin_gen->y_prew[0];
 	sin_gen->y_prew[0] = y_new;
 	return y_new;
 }
@@ -413,15 +413,15 @@ float generate_next_sin_value(sin_genarator_t* sin_gen){
 
 ### TODO:
 - Nucleo:
-	- [ ] Přijímání zprávy,
-	- [ ] Nastavení filtru,
-	- [ ] Generování sinu,
+	- [x] Přijímání zprávy,
+	- [x] Nastavení filtru,
+	- [x] Generování sinu,
 - Matlab:
-	- [ ] Odesílání zprávy,
-		- [ ] Dolnopropustní filtr,
-		- [ ] Frekvence nosné,
-	- [ ] generování signálu,
-	- [ ] Vizualizace
+	- [x] Odesílání zprávy,
+		- [x] Dolnopropustní filtr,
+		- [x] Frekvence nosné,
+	- [x] generování signálu,
+	- [x] Vizualizace
 
 ## Nápad
 Zavést logování zpráv na Nucleu.
